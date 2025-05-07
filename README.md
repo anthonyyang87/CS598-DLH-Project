@@ -1,72 +1,103 @@
+# Clinical Language Model Reproduction Using LLM (Simplified Preprocessing Reproduction)
 
-# Clinical Language Model Reproduction Using LLM (Way Simplified Version)
+***Disclaimer: This project is a simplified and partial reproduction due to hardware constraints.***  
 
-***Disclaimer: This project is experimental***  
+This repository provides a streamlined implementation to reproduce the **preprocessing pipeline** of the paper:  
+**"Do We Still Need Clinical Language Models?"** by Lehman et al.
 
-This repository provides a simplified reproduction of the paper: **"Do We Still Need Clinical Language Models?"**
+**Original Paper**: https://arxiv.org/abs/2302.08091  
+**Original Repository**: https://github.com/elehman16/do-we-still-need-clinical-lms
 
-**Original Paper Publication**: https://arxiv.org/abs/2302.08091
+---
 
-**Original Paper Repository**: https://github.com/elehman16/do-we-still-need-clinical-lms
+## 🔧 Project Structure
 
-## Project Structure
+- `scripts/preprocessing/`: Full set of Python preprocessing scripts (e.g., DEID tag replacement, note deduplication)
+- `run_preprocessing_pipeline.sh`: Main bash script to run the full preprocessing pipeline
+- `data/`: Directory expected to hold raw input files such as MIMIC-III/IV, RadQA, Discharge data, and annotations
+- `output/`: Preprocessed text output (DEID tags replaced, combined notes, and ready for pretraining)
 
-- `scripts/preprocess.py`: Prepares MedNLI dataset for model training using the Clinical-T5 tokenizer.
-- `scripts/train.py`: Simplified training loop using HuggingFace Transformers.
-- `scripts/evaluate.py`: Evaluation of trained model on classification metrics.
-- `requirements.txt`: All essential Python packages required.
-- `data/`: Expected directory for raw and processed dataset files.
-- `models/`: Checkpoints will be saved here.
-- `outputs/`: Evaluation results will be stored here.
+---
 
-## Environment Setup
+## ⚙️ Environment Setup
+
+We recommend using `conda` or `venv`:
 
 ```bash
-# Create and activate a virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-
-# Install dependencies
+conda create -n clinical-preprocess python=3.9
+conda activate clinical-preprocess
 pip install -r requirements.txt
 ```
 
-## Usage Instructions
+---
 
-### 1. Data Preparation
+## 📥 Data Access Instructions
 
-Ensure MedNLI dataset is downloaded and placed under `data/MedNLI/` with files like:
-- `train.tsv`
-- `dev.tsv`
-- `test.tsv`
+To reproduce preprocessing and clinical tasks, you must obtain access to the following datasets:
 
-Then run preprocessing:
+### 🔐 Required Credentialing
+Before accessing most datasets, complete the **CITI "Data or Specimens Only Research" course** and sign the corresponding **Data Use Agreement (DUA)** with PhysioNet or MIT Lab.
+
+### 📚 Dataset Links
+
+| Dataset               | Description                                   | Access Link                                                                 |
+|------------------------|-----------------------------------------------|------------------------------------------------------------------------------|
+| **MedNLI**             | Clinical natural language inference dataset   | [PhysioNet MedNLI](https://physionet.org/content/mednli/1.0.0/)              |
+| **RadQA**              | Radiology question answering dataset          | [PhysioNet RadQA](https://physionet.org/content/radqa/1.0.0/)                |
+| **Discharge Notes**    | Annotated hospital discharge summaries        | [Labelled Hospital Notes](https://physionet.org/content/labelled-notes-hospital-course/1.2.0/) |
+| **MIMIC-III CareVue**  | Clinical notes from CareVue EHR system        | [MIMIC-III CareVue](https://physionet.org/content/mimic3-carevue/1.4/)       |
+| **Noteevents**         | Full set of clinical notes                    | [Kaggle Noteevents](https://www.kaggle.com/datasets/hussameldinanwer/noteevents-mimic-iii) |
+
+### 🔧 Directory Structure
+
+After downloading, organize the files like this:
+
+data/
+├── raw_datasets/
+│ ├── NOTEEVENTS.csv
+│ ├── discharge.csv
+│ ├── discharge_annotation.csv
+│ ├── radiology.csv
+│ ├── radiology_annotation.csv
+│ ├── MIMIC_III_CAREVIEW_NOTEEVENTS.csv
+├── MedNLI/
+│ ├── train.tsv
+│ ├── dev.tsv
+│ ├── test.tsv
+
+## 🚀 Preprocessing Pipeline Usage
+
+To run the complete preprocessing flow on your local machine:
 
 ```bash
-python preprocess.py
+bash run_preprocessing_pipeline.sh \
+  data/raw/NOTEEVENTS.csv \
+  data/raw/discharge.csv \
+  data/raw/discharge_annotation.csv \
+  data/raw/radiology.csv \
+  data/raw/radiology_annotation.csv \
+  data/raw/MIMIC_III_CAREVIEW_NOTEEVENTS.csv \
+  output/
 ```
 
-### 2. Training
+### Output files include:
+- `output/NOTEEVENTS_DEDUP_REPLACED_TAGS.csv`
+- `output/DISCHARGE_REPLACED_DEID_TAGS.csv`
+- `output/RADIOLOGY_REPLACED_DEID_TAGS.csv`
+- `output/ALL_COMBINED_III_IV_REPLACED_TAGS.csv`
+- `output/COMBINED_III_IV_TRAIN_REPLACED_TAGS.csv`
+- `output/COMBINED_III_IV_TRAIN_REPLACED_TAGS_TEXT_ONLY.csv`
 
-```bash
-python train.py --model_name t5-base --output_dir models/
-```
+---
 
-This will save checkpoints in `models/`.
+## 📌 Limitations
 
-### 3. Evaluation
+- Only preprocessing was reproduced due to memory and GPU limitations.
+- Full training of Clinical-T5 or large model variants was not attempted.
+- Evaluation and downstream task performance were not replicated.
 
-```bash
-python evaluate.py --model_path models/ --data_path data/processed/mednli_dev.json
-```
+---
 
-Metrics like accuracy and classification report will be printed.
-
-## Notes
-
-- This setup is optimized for single-GPU training (e.g., NVIDIA 3070Ti).
-- LoRA support is not included but could be added using `peft` and `transformers` integration.
-- Adjust batch size in `train.py` if you run out of memory.
-
-## License
+## 📄 License
 
 MIT
