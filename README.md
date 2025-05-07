@@ -1,9 +1,12 @@
 
-# Clinical Language Model Reproduction (Way Simpplified Version)
+# Clinical Language Model Reproduction Using LLM (Way Simplified Version)
+
+***Disclaimer: This project is experimental***  
 
 This repository provides a simplified reproduction of the paper: **"Do We Still Need Clinical Language Models?"**
 
 **Original Paper Publication**: https://arxiv.org/abs/2302.08091
+
 **Original Paper Repository**: https://github.com/elehman16/do-we-still-need-clinical-lms
 
 ## Project Structure
